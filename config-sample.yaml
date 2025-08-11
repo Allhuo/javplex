@@ -1,0 +1,135 @@
+# Plex JAV Metadata Updater 配置文件模板
+# 使用说明：复制此文件为 config.yaml 并填入您的实际配置
+
+# Plex 服务器配置
+plex:
+  url: "http://YOUR_PLEX_SERVER_IP:32400"  # Plex 服务器地址
+  token: "YOUR_PLEX_TOKEN"  # Plex Token (在 Plex 设置中获取)
+  library: "YOUR_LIBRARY_NAME"  # JAV 视频所在的库名称
+
+# JavLibrary 配置
+javlibrary:
+  base_url: "https://www.javlibrary.com"  # JavLibrary 网址（可使用镜像站）
+  proxy: null  # 代理地址，例如: "http://127.0.0.1:7890"
+  timeout: 10  # 请求超时时间（秒）
+  language: "cn"  # 语言设置: cn (中文), en (英文), ja (日文)
+  rate_limit: 3.0  # 请求间隔（秒）- 防止 CloudFlare 封禁
+  max_retries: 3  # 请求失败最大重试次数
+  
+  # CloudFlare 绕过配置（可选）
+  # 如果遇到 403 错误，请在浏览器中访问 JavLibrary，然后：
+  # 1. 按 F12 打开开发者工具
+  # 2. 切换到 Network 标签，刷新页面
+  # 3. 找到任意请求，复制 Request Headers 中的 Cookie 和 User-Agent
+  cookies: ""  # 从浏览器复制完整的 Cookie 字符串
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+# 类别映射 - 将 JavLibrary 的类别转换为中文
+genre_mapping:
+  "Amateur": "素人"
+  "Slender": "苗条"
+  "Big Tits": "巨乳"
+  "Creampie": "中出"
+  "Married Woman": "人妻"
+  "Mature Woman": "熟女"
+  "School Girls": "女学生"
+  "Nurse": "护士"
+  "Teacher": "教师"
+  "Office Lady": "OL"
+  "Cosplay": "角色扮演"
+  "Swimsuit": "泳装"
+  "Uniform": "制服"
+  "Lingerie": "内衣"
+  "Fetish": "恋物"
+  "Masturbation": "自慰"
+  "Blowjob": "口交"
+  "Handjob": "手交"
+  "Footjob": "足交"
+  "Anal": "肛交"
+  "Lesbian": "女同"
+  "Threesome": "3P"
+  "Orgy": "乱交"
+  "Gangbang": "轮奸"
+  "Rape": "强奸"
+  "Incest": "乱伦"
+  "Virgin": "处女"
+  "Documentary": "纪录片"
+  "Drama": "剧情"
+  "Debut Production": "出道作品"
+  "Best/Omnibus": "精选集"
+  "HD": "高清"
+  "人妻": "人妻"
+  "熟女": "熟女"
+  "巨乳": "巨乳"
+  "美少女": "美少女"
+  "苗条": "苗条"
+  "女学生": "女学生"
+  "制服": "制服"
+  "护士": "护士"
+  "教师": "教师"
+  "OL": "OL"
+  "角色扮演": "角色扮演"
+  "泳装": "泳装"
+  "内衣": "内衣"
+  "中出": "中出"
+  "口交": "口交"
+  "自慰": "自慰"
+  "3P": "3P"
+  "乱交": "乱交"
+  "素人": "素人"
+  "出道作品": "出道作品"
+  "高清": "高清"
+  "独占配信": "独占配信"
+  "数位马赛克": "数码马赛克"
+  "单体作品": "单体作品"
+  "企画": "企划"
+  "薄马赛克": "薄码"
+  "VR": "VR"
+  "美乳": "美乳"
+  "痴女": "痴女"
+  "调教": "调教"
+  "羞耻": "羞耻"
+  "野外": "野外露出"
+  "颜射": "颜射"
+  "潮吹": "潮吹"
+  "玩具": "玩具"
+  "乳交": "乳交"
+  "多P": "多P"
+  "颜面骑乘": "颜面骑乘"
+  "SM": "SM"
+  "捆绑": "捆绑"
+  "深喉": "深喉"
+  "按摩": "按摩"
+  "偷拍": "偷拍"
+  "NTR": "NTR"
+  "女同接吻": "女同接吻"
+  "母乳": "母乳"
+  "孕妇": "孕妇"
+
+# 合集设置 - 新版本使用智能合集创建
+# 现在工具会自动创建以下合集：
+# 1. 番号系列合集：根据番号前缀自动分组（例如："CJOD系列"、"ABF系列"）
+# 2. 演员作品集：为主要演员创建专属合集（例如："XXX作品集"）
+# 3. 制作商合集：可选，通过 rules.add_studio_collection 启用
+#
+# 注意：下面的 collection_mapping 已不再使用，保留仅供参考
+collection_mapping: {}  # 留空，不再使用基于类别的合集映射
+
+# 高级设置
+advanced:
+  max_threads: 2  # 最大并发线程数（降低以减少429错误）
+  rate_limit: 1  # 请求间隔（秒）
+  retry_times: 3  # 失败重试次数
+  cache_expire: 86400  # 缓存过期时间（秒）
+  log_level: "INFO"  # 日志级别: DEBUG, INFO, WARNING, ERROR
+  
+# 处理规则
+rules:
+  skip_with_genres: false  # 跳过已有类别的视频
+  skip_with_collections: false  # 跳过已有合集的视频
+  overwrite_title: false  # 是否覆盖现有标题
+  add_code_to_title: false  # 是否在标题中添加番号
+  max_actors_as_tags: 5  # 最多添加几个演员作为标签
+  download_covers: true  # 是否下载并设置封面图片
+  overwrite_posters: false  # 是否覆盖现有封面
+  add_studio_collection: false  # 是否创建制作商合集
