@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  jav-updater:
+    build: .
+    # image: javplex:latest  # 如果使用预构建镜像，取消注释此行并注释 build: .
+    container_name: jav-metadata-updater
+    
+    volumes:
+      # 挂载配置文件（必需）
+      - ./config.yaml:/app/config.yaml:ro
+      
+      # 挂载日志目录（可选，用于持久化日志）
+      - ./logs:/app/logs
+      
+      # 如果Plex在同一台机器上，可能需要挂载媒体文件路径
+      # - /path/to/your/media:/media:ro
+    
+    environment:
+      # Python输出缓冲设置，确保实时日志输出
+      - PYTHONUNBUFFERED=1
+      
+      # 可选：设置时区
+      - TZ=Asia/Shanghai
+    
+    networks:
+      - jav-net
+    
+    # 重启策略
+    restart: unless-stopped
+    
+    # 资源限制（可选）
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+# 定时执行版本（可选）
+  jav-scheduler:
+    build: .
+    container_name: jav-metadata-scheduler
+    profiles: ["scheduler"]  # 使用 docker-compose --profile scheduler up 启动
+    
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./logs:/app/logs
+    
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=Asia/Shanghai
+      # 定时执行：每天凌晨2点运行
+      - CRON_SCHEDULE=0 2 * * *
+    
+    command: >
+      sh -c "
+        echo 'Installing cron...' &&
+        apt-get update && apt-get install -y cron &&
+        echo '$${CRON_SCHEDULE} cd /app && python jav_meta_updater.py >> /app/logs/cron.log 2>&1' > /etc/crontab &&
+        echo 'Starting cron daemon...' &&
+        cron -f
+      "
+    
+    networks:
+      - jav-net
+    
+    restart: unless-stopped
+
+networks:
+  jav-net:
+    driver: bridge

@@ -21,14 +21,89 @@
 
 ## 安装和配置
 
-### 1. 系统要求
+### 方案1：Docker 部署（推荐，无需Python环境）
 
+#### 系统要求
+- Docker 和 Docker Compose
+- Plex Media Server
+- 网络访问 JavLibrary
+
+#### 快速开始
+```bash
+# 1. 下载项目
+git clone https://github.com/your-repo/javplex.git
+cd javplex
+
+# 2. 复制配置文件
+cp config-sample.yaml config.yaml
+
+# 3. 编辑配置文件，填入你的Plex服务器信息
+nano config.yaml  # 或使用其他编辑器
+
+# 4. 一键运行
+./docker-run.sh
+```
+
+#### Docker 使用方式
+
+**交互式运行（实时查看进度）：**
+```bash
+./docker-run.sh                    # 处理所有视频
+./docker-run.sh --dry-run           # 测试模式，不更新Plex
+./docker-run.sh --limit 10          # 只处理前10个视频
+```
+
+**后台运行：**
+```bash
+./docker-run.sh -d                  # 后台运行
+./docker-run.sh -l                  # 查看日志
+./docker-run.sh -s                  # 停止运行
+```
+
+**使用docker-compose：**
+```bash
+# 一次性运行
+docker-compose up
+
+# 后台运行
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 定时任务版本（每天凌晨2点运行）
+docker-compose --profile scheduler up -d
+```
+
+**手动Docker命令：**
+```bash
+# 构建镜像
+docker build -t javplex:latest .
+
+# 交互式运行
+docker run -it --rm \
+  -v ./config.yaml:/app/config.yaml:ro \
+  -v ./logs:/app/logs \
+  javplex:latest
+
+# 后台运行
+docker run -d --name jav-updater \
+  -v ./config.yaml:/app/config.yaml:ro \
+  -v ./logs:/app/logs \
+  javplex:latest
+
+# 查看日志
+docker logs -f jav-updater
+```
+
+### 方案2：Python 环境部署
+
+#### 系统要求
 - Python 3.7+
 - Plex Media Server
 - 网络访问 JavLibrary
 
-### 2. 安装依赖
-
+#### 安装步骤
 ```bash
 # 克隆或下载项目到本地
 cd jav-meta
@@ -42,13 +117,13 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-### 3. 配置设置
+### 配置设置
 
 复制并编辑配置文件：
 
 ```bash
-cp config.yaml.example config.yaml  # 如果有示例文件
-# 或直接编辑 config.yaml
+cp config-sample.yaml config.yaml
+# 然后编辑 config.yaml 填入你的配置
 ```
 
 **重要配置项：**
@@ -86,7 +161,41 @@ javlibrary:
 
 ## 使用方法
 
-### 基本用法
+### Docker 方式（推荐）
+
+**一键脚本使用：**
+```bash
+# 基本使用
+./docker-run.sh                    # 处理所有视频
+./docker-run.sh --dry-run           # 测试模式
+./docker-run.sh --limit 10          # 处理前10个
+
+# 后台运行
+./docker-run.sh -d                  # 后台启动
+./docker-run.sh -l                  # 查看日志
+./docker-run.sh -s                  # 停止运行
+
+# 构建镜像
+./docker-run.sh -b                  # 仅构建镜像
+
+# 查看帮助
+./docker-run.sh -h
+```
+
+**Docker Compose 使用：**
+```bash
+# 运行一次
+docker-compose up
+
+# 后台运行
+docker-compose up -d
+docker-compose logs -f              # 查看日志
+
+# 定时任务（每天凌晨2点）
+docker-compose --profile scheduler up -d
+```
+
+### Python 环境方式
 
 ```bash
 # 测试连接（推荐首次运行）
@@ -222,6 +331,9 @@ python -c "from jav_meta_updater import JAVNumberExtractor; print(JAVNumberExtra
 **Q: 被 JavLibrary 封禁？**  
 A: 增加 `rate_limit` 值（如改为 3.0），减少并发线程数。
 
+**Q: Docker 相关问题？**  
+A: 确保 Docker 已安装并运行，配置文件路径正确挂载。查看容器日志：`docker logs container_name`
+
 ### 调试模式
 
 启用详细日志：
@@ -244,16 +356,26 @@ python jav_meta_updater.py --dry-run
 ```
 jav-meta/
 ├── jav_meta_updater.py    # 主程序
-├── test_plex.py           # 连接测试脚本
-├── config.yaml            # 配置文件
-├── requirements.txt       # Python依赖
-├── README.md             # 说明文档
-├── .gitignore            # Git忽略文件
-└── logs/                 # 日志目录
+├── config-sample.yaml     # 配置文件模板
+├── Dockerfile            # Docker镜像构建文件
+├── docker-compose.yml    # Docker编排配置
+├── docker-run.sh         # 一键运行脚本
+├── requirements.txt      # Python依赖
+├── README.md            # 说明文档
+├── .dockerignore        # Docker忽略文件
+├── .gitignore           # Git忽略文件
+└── logs/                # 日志目录
     └── jav_meta_updater.log
 ```
 
 ## 更新日志
+
+### v2.0.0 (Docker版本)
+- 🐳 **Docker 容器化支持** - 一键部署，无需Python环境
+- 📋 **一键运行脚本** - docker-run.sh 简化所有操作
+- ⏰ **定时任务支持** - Docker Compose 定时执行
+- 📊 **多种日志查看** - 交互式/后台/文件日志
+- 🔧 **灵活部署方式** - 支持 Docker 和传统 Python 两种方式
 
 ### v1.0.0
 - ✅ 支持智能番号提取
@@ -262,6 +384,9 @@ jav-meta/
 - ✅ 批量处理和多线程
 - ✅ 智能频率限制
 - ✅ 完整的配置系统
+- ✅ 智能合集创建（番号系列+演员作品集）
+- ✅ 封面图片下载
+- ✅ 性能优化和智能跳过
 
 ## 贡献指南
 

@@ -47,6 +47,7 @@ debug_*.py
 test_*.html
 
 # Config with sensitive data
+config.yaml
 config_local.yaml
 config_prod.yaml
 *.env.local
